@@ -30,8 +30,7 @@ class rigid_registration(expectation_maximization_registration):
 
         self.R = np.transpose(np.dot(np.dot(U, np.diag(C)), V))
         self.YPY = np.dot(np.transpose(self.P1), np.sum(np.multiply(YY, YY), axis=1))
-        self.s = np.trace(np.dot(np.transpose(self.A), np.transpose(self.R))) / self.YPY
-        self.t = np.transpose(muX) - self.s * np.dot(np.transpose(self.R), np.transpose(muY))
+        self.t = np.transpose(muX) - np.dot(np.transpose(self.R), np.transpose(muY))
 
     def transform_point_cloud(self, Y=None):
         if Y is None:
@@ -45,9 +44,9 @@ class rigid_registration(expectation_maximization_registration):
 
         trAR = np.trace(np.dot(self.A, self.R))
         xPx = np.dot(np.transpose(self.Pt1), np.sum(np.multiply(self.XX, self.XX), axis =1))
-        self.q = (xPx - 2 * self.s * trAR + self.s * self.s * self.YPY) / (2 * self.sigma2) + self.D * self.Np/2 * np.log(self.sigma2)
+        self.q = (xPx - 2 * trAR + self.YPY) / (2 * self.sigma2) + self.D * self.Np/2 * np.log(self.sigma2)
         self.err = np.abs(self.q - qprev)
-        self.sigma2 = (xPx - self.s * trAR) / (self.Np * self.D)
+        self.sigma2 = (xPx - trAR) / (self.Np * self.D)
         if self.sigma2 <= 0:
             self.sigma2 = self.tolerance / 10
 

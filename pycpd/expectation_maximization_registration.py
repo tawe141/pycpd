@@ -57,12 +57,15 @@ class expectation_maximization_registration(object):
         self.iteration += 1
 
     def expectation(self):
-        P = np.zeros((self.M, self.N))
+        # P = np.zeros((self.M, self.N))
+        #
+        # for i in range(0, self.M):
+        #     diff     = self.X - np.tile(self.TY[i, :], (self.N, 1))
+        #     diff     = np.multiply(diff, diff)
+        #     P[i, :]  = P[i, :] + np.sum(diff, axis=1)
 
-        for i in range(0, self.M):
-            diff     = self.X - np.tile(self.TY[i, :], (self.N, 1))
-            diff     = np.multiply(diff, diff)
-            P[i, :]  = P[i, :] + np.sum(diff, axis=1)
+        diff = np.expand_dims(self.X, 1) - np.expand_dims(self.TY, 0)
+        P = (diff * diff).sum(-1)
 
         c = (2 * np.pi * self.sigma2) ** (self.D / 2)
         c = c * self.w / (1 - self.w)
@@ -83,3 +86,7 @@ class expectation_maximization_registration(object):
         self.update_transform()
         self.transform_point_cloud()
         self.update_variance()
+
+    def mse(self):
+        diff = np.expand_dims(self.X, 1) - np.expand_dims(self.TY, 0)
+        return ((diff * diff).sum(-1) * self.P).sum() / len(self.X)
